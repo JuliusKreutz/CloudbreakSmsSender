@@ -1,0 +1,74 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  build:
+    name: Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v2
+
+      - name: Setup Java
+        uses: actions/setup-java@v2
+        with:
+          distribution: "zulu"
+          java-package: jdk
+          java-version: 11
+
+      - name: Build CloudbreakSmsSenderLauncher
+        working-directory: CloudbreakSmsSenderLauncher/
+        run: ./gradlew.bat createExe
+
+      - name: Build CloudbreakSmsSender
+        working-directory: CloudbreakSmsSender/
+        run: ./gradlew.bat createExe
+
+      - name: Move Exe
+        run: |
+          mv CloudbreakSmsSenderLauncher/build/launch4j/CloudbreakSmsSenderLauncher.exe .
+          mv CloudbreakSmsSender/build/launch4j/CloudbreakSmsSender.exe .
+
+      - name: Write Version
+        run: echo ${{ github.ref_name }} > version.txt
+
+      - name: Build CloudbreakSmsSenderInstaller
+        run: iscc.exe installer.iss /DMyAppVersion=${{ github.ref_name }}
+
+      - name: Build CloudbreakSmsSenderApp
+        working-directory: CloudbreakSmsSenderApp
+        run: ./gradlew.bat assembleRelease
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+
+      - name: Upload CloudbreakSmsSenderInstaller.exe
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: out/CloudbreakSmsSenderInstaller.exe
+          asset_name: CloudbreakSmsSenderInstaller.exe
+          asset_content_type: application/vnd.microsoft.portable-executable
+
+      - name: Upload cloudbreaksmssender-app.apk
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: CloudbreakSmsSenderApp/app/build/outputs/apk/release/app-release.apk
+          asset_name: cloudbreaksmssender-app.apk
+          asset_content_type: application/vnd.android.package-archive

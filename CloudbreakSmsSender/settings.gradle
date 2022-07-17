@@ -1,0 +1,4 @@
+rootProject.name = 'CloudbreakSmsSender'
+
+include ':CloudbreakSmsSenderShared'
+project(':CloudbreakSmsSenderShared').projectDir = new File(rootDir, '../CloudbreakSmsSenderShared')

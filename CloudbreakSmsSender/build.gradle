@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+    id 'com.palantir.git-version' version '0.15.0'
+    id 'com.github.johnrengelman.shadow' version '7.1.2'
+    id 'edu.sc.seis.launch4j' version '2.5.3'
+}
+
+group 'dev.kreutz'
+version versionDetails().lastTag
+
+project.sourceCompatibility = '1.8'
+project.targetCompatibility = '1.8'
+
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":CloudbreakSmsSenderShared")
+    implementation 'com.intellij:forms_rt:7.0.3'
+    implementation 'com.formdev:flatlaf:2.3'
+}
+
+launch4j {
+    mainClassName = 'dev.kreutz.cloudbreaksmssender.SmsSender'
+    copyConfigurable = []
+    jarTask = project.tasks.shadowJar
+    icon = new File(rootDir, "../icon.ico")
+}

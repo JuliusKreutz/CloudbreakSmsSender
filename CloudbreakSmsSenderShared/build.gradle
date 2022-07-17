@@ -1,0 +1,10 @@
+plugins {
+    id 'java'
+    id 'com.palantir.git-version' version '0.15.0'
+}
+
+group 'dev.kreutz'
+version versionDetails().lastTag
+
+project.sourceCompatibility = '1.8'
+project.targetCompatibility = '1.8'
