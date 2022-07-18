@@ -48,6 +48,7 @@ public class SmsSender extends JFrame {
     private SmsSender() {
         try {
             BufferedImage image = ImageIO.read(Objects.requireNonNull(getClass().getClassLoader().getResource("icon.png")));
+            setIconImage(image);
 
             int factor = 10;
             int width = image.getWidth() / factor;
@@ -321,4 +322,5 @@ public class SmsSender extends JFrame {
     public JComponent $$$getRootComponent$$$() {
         return panel;
     }
+
 }
