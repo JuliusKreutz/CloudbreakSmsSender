@@ -124,7 +124,7 @@ public class SmsSenderService extends Service implements Runnable {
         registerReceiver(receiver, new IntentFilter(SMS_SENT));
 
         while (!Thread.interrupted()) {
-            //waitForAddress();
+            waitForAddress();
             eventLoop();
         }
 
@@ -163,7 +163,7 @@ public class SmsSenderService extends Service implements Runnable {
      * Process ping and send sms requests
      */
     private void eventLoop() {
-        try (Socket socket = new Socket("172.16.8.170", Const.TCP_PORT);
+        try (Socket socket = new Socket(PACKET.getAddress(), Const.TCP_PORT);
              ObjectOutputStream writer = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream reader = new ObjectInputStream(socket.getInputStream())) {
 
