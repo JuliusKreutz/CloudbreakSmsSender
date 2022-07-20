@@ -8,6 +8,8 @@ plugins {
 group 'dev.kreutz'
 version versionDetails().lastTag
 
+compileJava.options.encoding = 'UTF-8'
+
 project.sourceCompatibility = '1.8'
 project.targetCompatibility = '1.8'
 
