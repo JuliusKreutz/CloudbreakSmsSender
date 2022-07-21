@@ -139,7 +139,9 @@ public class SmsSenderService extends Service implements Runnable {
     private void waitForAddress() {
         WifiManager wifiManager = getSystemService(WifiManager.class);
         WifiManager.MulticastLock multicastLock = wifiManager.createMulticastLock("multicast_lock");
-        multicastLock.acquire();
+
+        if (multicastLock != null)
+            multicastLock.acquire();
 
         for (; ; ) {
             try (MulticastSocket socket = new MulticastSocket(Const.MULTICAST_PORT)) {
@@ -156,7 +158,8 @@ public class SmsSenderService extends Service implements Runnable {
             }
         }
 
-        multicastLock.release();
+        if (multicastLock != null)
+            multicastLock.release();
     }
 
     /**
