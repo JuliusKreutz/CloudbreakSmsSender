@@ -137,11 +137,14 @@ public class SmsSenderService extends Service implements Runnable {
      * @see #PACKET
      */
     private void waitForAddress() {
+        String tag = "lock";
         WifiManager wifiManager = getSystemService(WifiManager.class);
-        WifiManager.MulticastLock multicastLock = wifiManager.createMulticastLock("multicast_lock");
+        WifiManager.WifiLock wifiLock = wifiManager.createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, tag);
+        WifiManager.MulticastLock multicastLock = wifiManager.createMulticastLock(tag);
+        multicastLock.setReferenceCounted(true);
 
-        if (multicastLock != null)
-            multicastLock.acquire();
+        wifiLock.acquire();
+        multicastLock.acquire();
 
         for (; ; ) {
             try (MulticastSocket socket = new MulticastSocket(Const.MULTICAST_PORT)) {
@@ -158,8 +161,8 @@ public class SmsSenderService extends Service implements Runnable {
             }
         }
 
-        if (multicastLock != null)
-            multicastLock.release();
+        multicastLock.release();
+        wifiLock.release();
     }
 
     /**
@@ -207,7 +210,7 @@ public class SmsSenderService extends Service implements Runnable {
      * @param text   The text of the sms
      */
     private int sendSms(String number, String text) {
-        SmsManager smsManager = SmsManager.getDefault();
+        SmsManager smsManager = getSystemService(SmsManager.class);
         ArrayList<String> messages = smsManager.divideMessage(text);
 
         ArrayList<PendingIntent> intents = new ArrayList<>(messages.size());
